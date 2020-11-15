@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Snake game</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <main>
+            <canvas id="canvas"></canvas>
+            <div class="float-left">
+                <div class="instructions">
+                    <h3>Using numeric keypad</h3>
+                    <p>UP = 8</p>
+                    <p>DOWN = 2</p>
+                    <p>LEFT = 4</p>
+                    <p>RIGHT = 6</p>
+                </div>
+                <div class="controls">        
+                    <button id="btn_left">Left</button>
+                    <div class="up_down_controls">
+                        <button id="btn_up">&#x0000A; Up</button>
+                        <button id="btn_down">Down</button>
+                    </div>
+                    <button id="btn_right">Right</button>          
+                </div>
+            </div>
+        </main>
+        <script>
+            const btn_up = document.querySelector('#btn_up');
+            const btn_left = document.querySelector('#btn_left');
+            const btn_right = document.querySelector('#btn_right');
+            const btn_down = document.querySelector('#btn_down');
+            const canvas = document.querySelector('#canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            let snake = [];
+            let food = [];
+
+            // set up game
+            const main = document.querySelector('main');
+            // set up score
+            const scoreDiv = document.createElement('div');
+            let score = 0;
+            main.appendChild(scoreDiv);
+            scoreDiv.innerText = "Score: " + score;
+            scoreDiv.setAttribute('class', 'score');
+
+            // set up game over modal
+            const gameOverDiv = document.createElement('div');
+            gameOverDiv.setAttribute('class', 'gameOver');
+            const gameOverMessage = document.createElement('div');
+            gameOverDiv.appendChild(gameOverMessage);
+            main.appendChild(gameOverDiv);   
+            //gameOverDiv.style.display = 'none';         
+
+            class Block {
+            constructor(x, y, color='green') {
+                this.color = color;
+                this.width = 20;
+                this.height = 20;
+                this.x = x;
+                this.y = y;
+            }
+            }
+            Block.prototype.moveUp = function() { this.y -= 20; };
+            Block.prototype.moveDown = function() { this.y += 20; };
+            Block.prototype.moveLeft = function() { this.x -= 20; };
+            Block.prototype.moveRight = function() { this.x += 20; };
+            
+            // Add event listeners
+            
+            document.addEventListener('keypress', function(e) {
+                    if (e.keyCode == 52) { 
+                        clearInterval(interval);
+                        interval = setInterval(moveSnake, 500, 'left');
+                    } else if(e.keyCode == 56) { 
+                        clearInterval(interval);
+                        interval = setInterval(moveSnake, 500, 'up');
+                    } else if(e.keyCode == 54) { 
+                        clearInterval(interval);
+                        interval = setInterval(moveSnake, 500, 'right');
+                    } else if(e.keyCode == 50) { 
+                        clearInterval(interval);
+                        interval = setInterval(moveSnake, 500, 'down');
+                    }
+                    draw();
+            });
+            
+            // initialize snake
+            let head = new Block(80, 200);
+            snake.push(head);
+            let block1 = new Block(80, 220);
+            let block2 = new Block(80, 240);
+            let block3 = new Block(80, 260);
+            let block4 = new Block(80, 280);
+            snake.push(block1);
+            snake.push(block2);
+            snake.push(block3);
+            snake.push(block4);
+
+            function isOutOfLimit(dir) {
+                if((dir === 'up' && snake[0].y - snake[0].height < 0) || (dir === 'down' && snake[0].y + snake[0].height*2 > canvas.height) || (dir === 'left' && snake[0].x - snake[0].width < 0) || (dir === 'right' && snake[0].x + snake[0].width*2 > canvas.width)) {
+                    clearInterval(interval);
+                    gameOver();
+                    return true;
+                }
+                return false;
+            }
+
+            function moveSnake(dir) {
+                if(isOutOfLimit(dir)) {
+                     return;
+                }
+                let i = 1;
+
+                let oldX = snake[0].x;
+                let oldY = snake[0].y;
+
+                if(dir === 'up') {
+                    snake[0].moveUp();
+                } else if(dir === 'down') {
+                    snake[0].moveDown();
+                } else if(dir === 'left') {
+                    snake[0].moveLeft();
+                } else {
+                    snake[0].moveRight();
+                }
+                
+                while(snake[i]) {
+                    let newOldX = snake[i].x;
+                    let newOldY = snake[i].y;
+                    snake[i].x = oldX;
+                    snake[i].y = oldY;
+                    oldX = newOldX;
+                    oldY = newOldY;
+                    i++;
+                }
+                draw();
+            }
+
+            btn_up.addEventListener('click', function() {
+                clearInterval(interval);
+                interval = setInterval(moveSnake, 500, 'up');
+            });
+
+            btn_down.addEventListener('click', function(e) {
+                clearInterval(interval);
+                interval = setInterval(moveSnake, 500, 'down');
+            });
+
+            btn_left.addEventListener('click', function(e) {
+                clearInterval(interval);  
+                interval = setInterval(moveSnake, 500, 'left');
+            });
+            btn_right.addEventListener('click', function(e) {
+                clearInterval(interval);
+                interval = setInterval(moveSnake, 500, 'right');
+            });
+
+            function draw() {
+                checkCollisionSnake();
+                checkCollisionFood();
+                ctx.clearRect(0, 0, 400, 400);
+                for(let i = 0; i < snake.length; i++) {
+                    if(i==0) {
+                        ctx.fillStyle = 'pink';
+                    } else {
+                        ctx.fillStyle = snake[i].color;
+                    }
+                    ctx.fillRect(snake[i].x, snake[i].y, snake[i].width, snake[i].height);
+                    ctx.stroke();
+                }
+                for(let i = 0; i < food.length; i++) {
+                    ctx.fillStyle = food[i].color;
+                    ctx.fillRect(food[i].x, food[i].y, food[i].width, food[i].height);
+                }
+            }
+
+            draw();
+
+            function addFood() {
+                if(food.length >= 10) {
+                    clearInterval(interval2);
+                }
+                let randomRGB = 'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+                food.push(new Block((Math.floor(Math.random() * 9)) * 40, (Math.floor(Math.random() * 9)) * 40, randomRGB));
+                //console.log(food);
+            }
+
+            function scoreUp() {
+                score++;
+                scoreDiv.innerText = "Score: " + score;
+            }
+
+            function checkCollisionFood() {
+                let head = snake[0];
+                for(let i = 0; i < food.length; i++) {
+                    let b = food[i];
+                    console.log('head: x: ' + head.x + '; y: ' + head.y);
+                    console.log('block: x: ' + b.x + '; y: ' + b.y);
+                    if(b.x + b.width <= head.x || b.x >= head.x + head.width || b.y + b.height <= head.y || b.y >= head.y + head.height) {
+                        // head and piece of food do not collide
+                    } else {
+                        b.color = 'red';
+                        console.log('collision!');                        
+                        snake.unshift(new Block(b.x, b.y));
+                        food.splice(i, 1);
+                        scoreUp();
+                    }
+                }
+            }
+
+            function gameOver() {
+                gameOverMessage.innerText = 'Game Over!';
+                gameOverDiv.style.display = 'block';
+                const btn = document.createElement('button');
+                btn.innerText = 'Play again?';
+                btn.style.display = 'block';
+                btn.addEventListener('click', function() {
+                    location.reload();
+                });
+                gameOverMessage.appendChild(btn);
+            }
+
+            function checkCollisionSnake() {
+                let head = snake[0];
+                for (let i = 1; i < snake.length; i++) {
+                    if(snake[i].x + snake[i].width <= head.x || snake[i].x >= head.x + head.width || snake[i].y + snake[i].height <= head.y || snake[i].y >= head.y + head.height) {
+                        // head does not collide with body
+                    } else {
+                        gameOver();
+                    }
+                }
+            }
+
+            let interval = setInterval(function() {
+                moveSnake('up');
+                draw()
+            }, 500);
+    
+            let interval2 = setInterval(function() {
+                 addFood();
+                 //draw()
+            }, 2000);
+            
+        </script>
+    </body>
+</html>
+

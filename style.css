@@ -1,0 +1,107 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+main{
+    width: 662px;
+    margin: 20px auto;
+    overflow: hidden;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+canvas{
+    float: left;
+    border: 1px solid black;
+    display: block;
+    position: relative;
+}
+.float-left{
+    float: left;
+    margin-left: 50px;
+}
+.controls {
+    display: flex;
+    align-items: center;
+    font-size: 0;
+}
+.up_down_controls{
+    display: inline-block;
+    width: 50px;
+    height: 160px;
+    vertical-align: middle;
+    font-size: 16px;
+}
+#btn_up{
+    width: 50px;
+    height: 80px;
+    text-align: center;
+    display: block;
+    white-space: break-spaces;
+}
+#btn_up:before{
+    content: '\2191';
+}
+#btn_down{
+    width: 50px;
+    height:80px;
+    text-align: center;
+    display: block;
+}
+#btn_down:after{
+    content: ' \2193';
+}
+#btn_left{
+    display: inline-block;
+    width: 80px;
+    height: 50px;
+    font-size: 16px;
+}
+#btn_left:before{
+    content: ' \2190 ';
+}
+#btn_right{
+    display: inline-block;
+    width: 80px;
+    height: 50px;
+    font-size: 16px;
+}
+#btn_right:after{
+    content: ' \2192';
+}
+.instructions{
+    text-align: center;
+    margin-bottom: 50px;
+    color: gray;
+}
+.score {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 30px;
+}
+.gameOver{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.gameOver div{
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 20px;
+}
